@@ -44,7 +44,7 @@ if __name__ == '__main__':
     parser.add_argument(
         '--weights', help='filename to save policy weights', default='weights', type=str)
     args = parser.parse_args()
-    logging.basicConfig(filename=args.log, encoding='utf-8', level=logging.DEBUG,
+    logging.basicConfig(filename=args.log, level=logging.DEBUG,
                         format='%(asctime)s %(message)s')
 
     # starting point
