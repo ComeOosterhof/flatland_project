@@ -5,7 +5,7 @@ import numpy as np
 import logging
 
 
-def oneplus_lambda(x, fitness, gens, lam, std=0.01, rng=np.random.default_rng()):
+def oneplus_lambda(x, fitness, gens, lam, std=0.1, rng=np.random.default_rng()):
     x_best = x
     f_best = -np.Inf
     n_evals = 0
