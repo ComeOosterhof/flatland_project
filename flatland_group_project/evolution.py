@@ -4,23 +4,47 @@ from argparse import ArgumentParser
 import numpy as np
 import logging
 
-
-def oneplus_lambda(x, fitness, gens, lam, std=0.1, rng=np.random.default_rng()):
+def mu_lambda(x, fitness, gens, lam,std=0.1,rng=np.random.default_rng(), alpha=0.2):
     x_best = x
     f_best = -np.Inf
     n_evals = 0
     for g in range(gens):
         N = rng.normal(size=(lam, len(x))) * std
+        F = np.zeros(lam)
         for i in range(lam):
             ind = x + N[i, :]
-            f = fitness(ind)
-            if f > f_best:
-                f_best = f
+            F[i] = fitness(ind)
+            if F[i] > f_best:
+                f_best = F[i]
                 x_best = ind
-        x = x_best
+        mu_f = np.mean(F)
+        std_f = np.std(F)
+        A = F
+        if std_f != 0:
+            A = (F - mu_f) / std_f
+        x = x - alpha * np.dot(A, N) / lam
         n_evals += lam
         logging.info('\t%d\t%d', n_evals, f_best)
     return x_best
+
+
+
+# def oneplus_lambda(x, fitness, gens, lam, std=0.1, rng=np.random.default_rng()):
+#     x_best = x
+#     f_best = -np.Inf
+#     n_evals = 0
+#     for g in range(gens):
+#         N = rng.normal(size=(lam, len(x))) * std
+#         for i in range(lam):
+#             ind = x + N[i, :]
+#             f = fitness(ind)
+#             if f > f_best:
+#                 f_best = f
+#                 x_best = ind
+#         x = x_best
+#         n_evals += lam
+#         logging.info('\t%d\t%d', n_evals, f_best)
+#     return x_best
 
 
 def fitness(x, s, a, env, params):
@@ -60,7 +84,7 @@ if __name__ == '__main__':
 
     def fit(x):
         return fitness(x, s, a, env, params)
-    x_best = oneplus_lambda(start, fit, args.gens, args.pop, rng=rng)
+    x_best = mu_lambda(start, fit, args.gens, args.pop, rng=rng)
 
     # Evaluation
     policy.set_params(x_best)
